@@ -1,7 +1,7 @@
 use url::Url;
 use rocket::http::{Status, RawStr};
 use rocket::Outcome;
-use rocket::request::{self, Request, FromRequest, FromFormValue};
+use rocket::request::{self, Request, FromRequest, FromFormValue, FromQuery};
 
 pub type ClientId = String;
 
@@ -51,6 +51,7 @@ impl<T: Into<String>> From<T> for Scope {
     }
 }
 
+#[derive(FormData)]
 pub struct AuthRequest {
     response_type: ResponseType,
     client_id: ClientId,
@@ -68,6 +69,10 @@ pub enum AuthRequestErr {
     InvalidScope(Vec<Scope>),
     ServerError,
     TemporarilyUnavailable,
+}
+
+impl<'q> FromQuery<'q> for AuthRequest {
+    
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for AuthRequest {
