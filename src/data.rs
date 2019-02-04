@@ -2,6 +2,8 @@ extern crate url;
 
 use std::collections::HashSet;
 use url::Url;
+use rocket::http::RawStr;
+use rocket::request::FromFormValue;
 
 struct Client {
     id: u64,
@@ -28,4 +30,4 @@ enum UserInformation {
     Email,
     OpenId,
     Other(String)
-} 
+}

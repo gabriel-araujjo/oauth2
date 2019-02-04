@@ -1,10 +1,12 @@
 -- Your SQL goes here
-CREATE TABLE users (
+CREATE TABLE people (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE OR REPLACE FUNCTION hash_password() RETURNS TRIGGER AS $$
 BEGIN
@@ -15,5 +17,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tg_hash_password BEFORE INSERT OR UPDATE ON users
+CREATE TRIGGER tg_hash_password BEFORE INSERT OR UPDATE ON people
 FOR EACH ROW EXECUTE PROCEDURE hash_password();

@@ -1,5 +1,5 @@
 table! {
-    users (id) {
+    people (id) {
         id -> Int4,
         name -> Text,
         email -> Text,

@@ -7,7 +7,7 @@ pub enum OAuthErr {
     UnauthorizedClient(u64),
     AccessDenied,
     UnsupportedResponseType(ResponseType),
-    InvalidScope(Vec<Scope>),
+    InvalidScope(Scope),
     ServerError,
     TemporarilyUnavailable,
 }
@@ -70,5 +70,4 @@ pub struct AuthForm<'a> {
     client_id: u64,
     redirect_uri: Option<&'a RawStr>,
     scope: Option<&'a RawStr>,
-    state: Option<&'a RawStr>,
 }

@@ -1,24 +1,38 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate diesel;
 #[macro_use] extern crate rocket;
 
-use rocket::request::Form;
+use dotenv::dotenv;
+use rocket_contrib::database;
 
-mod oauth2;
+mod schema;
+mod people;
+// mod oauth2;
 
-#[get("/<name>/<age>")]
-fn hello(name: String, age: u8) -> String {
-    format!("Hello, {} year old named {}!", age, name)
-}
+#[database("oauth_db")]
+pub struct DbConn(diesel::PgConnection);
 
-#[get("/authorize?<auth_form..>")]
-fn authorize(auth_form: Form<oauth2::AuthForm>) -> String {
-    match auth_form.response_type {
-        Code => 
-    }
+// #[get("/<name>/<age>")]
+// fn hello(name: String, age: u8) -> String {
+//     format!("Hello, {} year old named {}!", age, name)
+// }
+
+// #[get("/authorize?<state>&<auth_form..>")]
+// fn authorize(state: Option<&RawStr>, auth_form: Form<oauth2::AuthForm>) -> Result<JsonValue, OAuthErr> {
     
-    "OK".to_string()
-}
+//     match auth_form.response_type {
+//         Code => {
+
+//         },
+//         _ => 
+//     }
+//     "OK".to_string()
+// }
 
 fn main() {
-    rocket::ignite().mount("/hello", routes![hello]).launch();
+    dotenv().ok();
+    rocket::ignite()
+        .attach(DbConn::fairing())
+        .mount("/people", people::routes()).launch();
 }
