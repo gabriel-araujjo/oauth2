@@ -6,6 +6,7 @@
 use dotenv::dotenv;
 use rocket_contrib::database;
 
+mod errors;
 mod schema;
 mod people;
 // mod oauth2;

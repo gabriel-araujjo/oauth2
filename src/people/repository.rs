@@ -1,33 +1,40 @@
 use super::{Person, InsertablePerson};
+use super::errors::*;
 use crate::schema::people;
+use bcrypt::{DEFAULT_COST, hash, verify};
 use diesel;
 use diesel::debug_query;
 use diesel::prelude::*;
+use uuid::Uuid;
 
-const fn visible_columns() -> (people::columns::id, people::columns::name, people::columns::email) {
-    use self::people::dsl::*;
-    (id, name, email)
+pub fn get(id: Uuid, conn: &PgConnection) -> PeopleResult<Person> {
+    Ok(people::table.find(id).first(conn)?)
 }
 
-pub fn get(id: i32, conn: &PgConnection) -> QueryResult<Person> {
-    people::table.select(visible_columns()).filter(people::columns::id.eq(id)).first(conn)
-}
-
-pub fn insert(person: InsertablePerson, conn: &PgConnection) -> QueryResult<i32> {
+pub fn insert(mut person: InsertablePerson, conn: &PgConnection) -> PeopleResult<Uuid> {
+    person.password = hash(person.password.to_owned(), DEFAULT_COST)?;
     let query = diesel::insert_into(people::table)
         .values(person)
         .returning(people::columns::id);
 
     dbg!(debug_query::<diesel::pg::Pg, _>(&query).to_string());
 
-    query.get_result(conn)
+    Ok(query.get_result(conn)?)
 }
 
-pub fn delete(id: i32, conn: &PgConnection) -> QueryResult<usize> {
+pub fn delete(id: Uuid, conn: &PgConnection) -> QueryResult<usize> {
     diesel::delete(people::table.find(id))
         .execute(conn)
 }
 
-// fn get_by_email_checking_password(email: &str, password: &str) -> QueryResult<Person> {
-    
-// }
+pub fn get_by_email_checking_password(email: String, password: String, conn: &PgConnection) -> PeopleResult<Person> {
+    match people::table.filter(people::columns::email.eq(email)).first::<Person>(conn) {
+        Ok(person) => {
+            match verify(password, person.hash.as_str()) {
+                Ok(true) => Ok(person),
+                _ => Err(PeopleError::AuthenticationFail),
+            }
+        },
+        _ => Err(PeopleError::AuthenticationFail),
+    }   
+}

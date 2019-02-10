@@ -1,8 +1,8 @@
 table! {
     people (id) {
-        id -> Int4,
+        id -> Uuid,
         name -> Text,
         email -> Text,
-        password -> Text,
+        hash -> Text,
     }
 }

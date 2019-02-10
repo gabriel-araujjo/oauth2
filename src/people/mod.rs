@@ -1,6 +1,8 @@
-use serde_derive::{Serialize, Deserialize};
 use crate::schema::people;
+use serde_derive::{Serialize, Deserialize};
+use uuid::Uuid;
 
+pub mod errors;
 pub mod repository;
 mod routes;
 
@@ -8,9 +10,11 @@ pub use self::routes::routes;
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Person {
-    pub id: i32,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
+    #[serde(skip_serializing)]
+    pub hash: String,
 }
 
 #[derive(Insertable, FromForm)]
@@ -18,5 +22,6 @@ pub struct Person {
 pub struct InsertablePerson {
     name: String,
     email: String,
+    #[column_name = "hash"]
     password: String,
 }
