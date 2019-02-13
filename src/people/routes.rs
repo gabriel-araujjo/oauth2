@@ -10,7 +10,7 @@ fn get(id: Uuid, conn: DbConn) -> Option<Json<Person>> {
 }
 
 #[post("/", data="<person>")]
-fn post(person: Form<InsertablePerson>, conn: DbConn) -> Option<Json<i32>> {
+fn post(person: Form<InsertablePerson>, conn: DbConn) -> Option<Json<uuid::Uuid>> {
     dbg!(repository::insert(person.into_inner(), &conn)).map(|id| Json(id)).ok()
 }
 

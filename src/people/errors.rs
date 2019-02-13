@@ -1,15 +1,15 @@
 use bcrypt::BcryptError;
-use diesel::result::{Error as DieselError, DatabaseErrorKind, DatabaseErrorInformation};
-use std::convert::From;
+use diesel::result::{Error as DieselError, DatabaseErrorKind};
+use std::convert::{From, Into};
 use std::fmt;
-use uuid::Uuid;
+use rocket::http::Status;
 
 pub type PeopleResult<T> = Result<T, PeopleError>;
 
 #[derive(Debug)]
 pub enum PeopleError {
     // When there is no person registered with this id
-    NotFound(Uuid),
+    NotFound,
     // When the password has a null character 
     InvalidPassword,
     // When trying insert or update a person email and
@@ -36,13 +36,13 @@ impl From<DieselError> for PeopleError {
     fn from(e: DieselError) -> Self {
         // FIXME: find a way to remove this arrow
         match e {
-            DieselError::DatabaseError(DatabaseErrorKind::UniqueViolation, info) => {
+            DieselError::NotFound => PeopleError::NotFound,
+            DieselError::DatabaseError(DatabaseErrorKind::UniqueViolation, ref info) => {
                 match info.constraint_name() {
                     Some("people_email_unique") => PeopleError::DuplicateEmail,
                     _ => PeopleError::DieselError(e),
                 }
             },
-            NotFound => PeopleError::NotFound,
             _ => PeopleError::DieselError(e),
         }
     }
@@ -51,12 +51,24 @@ impl From<DieselError> for PeopleError {
 impl fmt::Display for PeopleError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PeopleError::NotFound(id) => write!(f, "Person with id {} not found", id),
+            PeopleError::NotFound => write!(f, "Person not found"),
             PeopleError::InvalidPassword => write!(f, "Password contain a forbidden null character (\\0)"),
             PeopleError::DuplicateEmail => write!(f, "Duplicate email"),
             PeopleError::AuthenticationFail => write!(f, "Authentication fail"),
             PeopleError::DieselError(err) => write!(f, "Diesel: {}", err),
             PeopleError::BcryptError(err) => write!(f, "Bcrypt: {}", err),
+        }
+    }
+}
+
+impl Into<Status> for PeopleError {
+    fn into(self) -> Status {
+        match self {
+            PeopleError::NotFound => Status::NotFound,
+            PeopleError::InvalidPassword => Status::new(400, "Invalid password (password has a \\0 character)"),
+            PeopleError::DuplicateEmail => Status::new(400, "Duplicated email"),
+            PeopleError::AuthenticationFail => Status::Forbidden,
+            _ => Status::InternalServerError,
         }
     }
 }

@@ -12,6 +12,14 @@ pub enum OAuthErr {
     TemporarilyUnavailable,
 }
 
+#[derive(FromForm)]
+pub struct AuthForm<'a> {
+    response_type: ResponseType,
+    client_id: u64,
+    redirect_uri: Option<&'a RawStr>,
+    scope: Option<&'a RawStr>,
+}
+
 #[derive(Debug)]
 pub enum ResponseType {
     Code,
@@ -62,12 +70,4 @@ struct TokenRequest {
     grant_type: GrantType,
     client_id: u64,
     scope: Vec<Scope>,
-}
-
-#[derive(FromForm)]
-pub struct AuthForm<'a> {
-    response_type: ResponseType,
-    client_id: u64,
-    redirect_uri: Option<&'a RawStr>,
-    scope: Option<&'a RawStr>,
 }

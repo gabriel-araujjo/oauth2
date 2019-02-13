@@ -18,12 +18,6 @@ enum ClientType {
     Public
 }
 
-struct User {
-    id: u64,
-    name: String,
-    email: String,
-    password: Option<String>,
-}
 
 enum UserInformation {
     Name,
