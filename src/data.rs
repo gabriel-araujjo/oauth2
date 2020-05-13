@@ -18,7 +18,6 @@ enum ClientType {
     Public
 }
 
-
 enum UserInformation {
     Name,
     Email,

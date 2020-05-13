@@ -6,8 +6,11 @@ edition = "2018"
 
 [dependencies]
 bcrypt = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
 dotenv = "0.13.0"
 diesel = { version = "1.4.1", features = ["postgres", "r2d2", "uuidv07"] }
+diesel-derive-enum = { version = "0.4", features = ["postgres"] } # "postgres", "mysql" or "sqlite"
+jsonwebtoken = "5"
 r2d2 = "0.8.3"
 rocket = "0.4.0"
 serde = "1.0"
@@ -15,6 +18,7 @@ serde_derive = "1.0"
 serde_json = "1.0"
 url = "1.7.2"
 uuid = { version = "0.7", features = ["v4", "serde"] }
+url_serde = "0.2.0"
 
 [dependencies.rocket_contrib]
 version = "0.4.0"

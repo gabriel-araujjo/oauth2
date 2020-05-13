@@ -1,13 +1,17 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate diesel;
+#[macro_use] extern crate diesel_derive_enum;
 #[macro_use] extern crate rocket;
+extern crate jsonwebtoken;
 
 use dotenv::dotenv;
 use rocket_contrib::database;
 
 mod schema;
+mod auth;
 mod people;
+mod clients;
 mod oauth2;
 // mod oauth2;
 
